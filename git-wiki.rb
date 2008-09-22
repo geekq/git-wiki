@@ -39,18 +39,40 @@ class Page
 
     def find_all
       return [] if Page.repo.tree.contents.empty?
-      Page.repo.tree.contents.collect { |blob| Page.new(blob.name.without_ext) }
+      traverse_tree Page.repo.tree
+    end
+
+    def traverse_tree(tree)
+      articles = []
+      tree.contents.collect do |elem|
+        if elem.respond_to?(:contents)
+          articles += traverse_tree(elem)
+        else
+          articles << Page.new(elem.name.without_ext)
+        end
+      end
+      articles
     end
   end
 
-  attr_reader :name
+  attr_reader :name, :path
 
-  def initialize(name)
+  def initialize(name, init_path = nil)
     @name = name
+    @path = init_path || name + PageExtension
   end
 
   def body
-    raw_body.to_html
+    if binary?
+      puts "raw output"
+      raw_body
+    else
+      raw_body.to_html
+    end
+  end
+
+  def binary?
+    !(path =~ /#{PageExtension}$/)
   end
 
   def raw_body
@@ -73,7 +95,12 @@ class Page
 
   private
     def find_blob
-      Page.repo.tree.contents.detect { |b| b.name == name + PageExtension }
+      go_deeper Page.repo.tree, path.split('/')
+    end
+
+    def go_deeper(tree, folders)
+      sub_elem = tree/(folders.shift)
+      folders.empty? ? sub_elem : go_deeper(sub_elem, folders)
     end
 
     def add_to_index_and_commit!
@@ -82,7 +109,7 @@ class Page
     end
 
     def file_name
-      File.join(GitRepository, name + PageExtension)
+      File.join(GitRepository, path)
     end
 
     def base_name
@@ -156,6 +183,20 @@ post '/e/:page' do
   @page = Page.new(params[:page])
   @page.body = params[:body]
   request.xhr? ? @page.body : redirect("/#{@page.name}")
+end
+
+get '/*' do
+  @page = Page.new('hello', params['splat'].to_s)
+  if @page.tracked?
+    if @page.binary?
+      content_type ''
+      @page.raw_body
+    else
+      haml(:show)
+    end
+  else
+    redirect("/e/#{@page.name}")
+  end
 end
 
 __END__
