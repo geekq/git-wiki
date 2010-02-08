@@ -162,7 +162,6 @@ module GitWiki
       content.each_line do |line|
         task = Task.parse(line) # try every line as a task decription
         if !task.nil?
-          puts "merge_attr #{merge_attributes.inspect}"
           merge_attributes.each do |key, value|
             task.attributes << [key, value] unless task[key]
           end
@@ -346,6 +345,16 @@ module GitWiki
         not_found if git_obj.nil?
       end
       content_type File.extname(params[:splat].last)
+      body git_obj.data
+    end
+
+    get "/documents/*" do
+      git_obj = GitWiki.repository.tree/'documents'
+      params[:splat].each do |part|
+        git_obj = git_obj/part
+        not_found if git_obj.nil?
+      end
+      content_type MIME::Types.type_for(File.extname(params[:splat].last))
       body git_obj.data
     end
 
