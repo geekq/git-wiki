@@ -410,6 +410,16 @@ __END__
       :sass
         del
           color: gray
+        code
+          background-color: #EEEEEE
+          border: 1px solid #DDDDDD
+          display: block
+          font-family: Consolas,"Andale Mono",monospace
+          /*font-size: 0.929em
+          /*line-height: 1.385em
+          margin-bottom: 1.692em
+          overflow: auto
+          padding: 0.615em 0.46em
         ul.navigation
           list-style-type: none
           display: inline
