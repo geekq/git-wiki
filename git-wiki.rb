@@ -9,13 +9,25 @@ require 'ruby-debug' # TODO: remove
 
 module GitWiki
   class << self
-    attr_accessor :homepage, :extension, :repository
+    attr_accessor :homepage, :extension, :repository, :tree
   end
 
-  def self.new(repository, extension, homepage)
+  # Creates a new instance of a Wiki application. Run with
+  # `run GitWiki.new(<params>)`
+  #
+  # @param [String] repository Folder of the git repository
+  # @param [String] extension `.markdown` is recommended
+  # @param [String] homepage The name of the default wiki page, e.g. `Home`
+  # @param [Optional String] subfolder
+  #     You can use git-wiki for documentation of your software project. Simply
+  #     put all the content in markdown format into a subfolder, e.g. `wiki` and
+  #     provide the folder name as optional parameter.
+  def self.new(repository, extension, homepage, subfolder = nil)
     self.homepage   = homepage
     self.extension  = extension
     self.repository = Grit::Repo.new(repository)
+    self.tree = self.repository.tree
+    self.tree = self.tree / subfolder if subfolder
 
     App
   end
@@ -193,8 +205,8 @@ module GitWiki
 
   class Page
     def self.find_all
-      return [] if repository.tree.contents.empty?
-      repository.tree.contents.
+      return [] if GitWiki.tree.contents.empty?
+      GitWiki.tree.contents.
         select {|blob| File.extname(blob.name) == GitWiki.extension }.
         collect {|blob| new(blob)}.
         sort_by {|page| page.name.downcase}
@@ -219,21 +231,17 @@ module GitWiki
       "unknown"
     end
 
-    def self.repository
-      GitWiki.repository || raise
-    end
-
     def self.extension
       GitWiki.extension || raise
     end
 
     def self.find_blob(page_name)
-      repository.tree/(page_name + extension)
+      GitWiki.tree/(page_name + extension)
     end
     private_class_method :find_blob
 
     def self.create_blob_for(page_name)
-      Grit::Blob.create(repository, {
+      Grit::Blob.create(GitWiki.repository, {
         :name => page_name + extension,
         :data => ""
       })
@@ -293,24 +301,21 @@ module GitWiki
 
     def update_content(new_content)
       return if new_content == content
-      File.open(file_name, "w") { |f| f << new_content }
-      add_to_index_and_commit!
+      Dir.chdir(GitWiki.repository.working_dir) {
+        File.open(rel_file_name, "w") { |f| f << new_content }
+        GitWiki.repository.add(rel_file_name)
+      }
+      GitWiki.repository.commit_index(commit_message)
     end
 
     private
-      def add_to_index_and_commit!
-        Dir.chdir(self.class.repository.working_dir) {
-          self.class.repository.add(@blob.name)
-        }
-        self.class.repository.commit_index(commit_message)
-      end
-
-      def file_name
-        File.join(self.class.repository.working_dir, name + self.class.extension)
+      def rel_file_name
+        fname = name + self.class.extension
+        res = File.join(GitWiki.tree.basename, fname) rescue fname
       end
 
       def commit_message
-        new? ? "Created #{name}" : "Updated #{name}"
+        new? ? "Wiki: created #{name}" : "Wiki: updated #{name}"
       end
   end
 
@@ -339,7 +344,7 @@ module GitWiki
     end
 
     get "/img/*" do
-      git_obj = GitWiki.repository.tree/'img'
+      git_obj = GitWiki.tree/'img'
       params[:splat].each do |part|
         git_obj = git_obj/part
         not_found if git_obj.nil?
@@ -349,7 +354,7 @@ module GitWiki
     end
 
     get "/documents/*" do
-      git_obj = GitWiki.repository.tree/'documents'
+      git_obj = GitWiki.tree/'documents'
       params[:splat].each do |part|
         git_obj = git_obj/part
         not_found if git_obj.nil?
@@ -406,7 +411,7 @@ __END__
 %html
   %head
     %title= title
-    %style
+    %style{ :type => 'text/css'}
       :sass
         del
           color: gray
@@ -430,6 +435,18 @@ __END__
             margin: 0
             padding: 0
             padding-right: 1.5em
+        table
+          border-collapse: collapse
+          border: 1px solid black
+          td, th
+            border-left: 1px solid black
+            border-right: 1px solid black
+            border-bottom: 1px dotted lightgrey
+            padding: 0px 4px
+          th
+            border-bottom: 1px solid black
+            text-align: left
+            padding: 3px 4px
         a.service
           color: #4377EF
           text-decoration: none

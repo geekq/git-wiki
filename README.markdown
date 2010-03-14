@@ -25,6 +25,22 @@ on the page. If not, then h1 is created out of the file name (as in
 original git-wiki).
 
 
+### Wiki in a subfolder
+
+You can use git-wiki for documentation of your software project. Simply
+put all the content in markdown format into a subfolder, e.g. `wiki` and
+provide the folder name as optional parameter.
+
+Example `run.ru` to place in your wiki subfolder:
+
+    #!/usr/bin/env rackup
+    #\ -p 8719
+    require 'git-wiki' # adjust path to your git-wiki installation if needed
+    run GitWiki.new(File.dirname(File.dirname(File.expand_path(__FILE__))), ".markdown", "Home", 'wiki')
+
+You can start the web server now with `rackup run.ru`.
+
+
 ### Integrated TODO list(s)
 
 Just write TODO or DONE at the beginning of a line with task you would
@@ -99,6 +115,9 @@ See also
 - [How to use vim to edit &lt;textarea&gt; in lynx][tip]
 - [WiGit][] think git-wiki except implemented in PHP
 - [ikiwiki][] is a wiki compiler supporting git
+- git-wiki uses [rdiscount library][] for markdown support. The latest
+  version also supports [markdown extra][] like tables, definition
+  lists, code blocks without indentation, abbreviations
 
 
   [Sinatra]: http://www.sinatrarb.com
@@ -113,6 +132,8 @@ See also
   [tip]: http://wiki.infogami.com/using_lynx_&_vim_with_infogami
   [WiGit]: http://el-tramo.be/software/wigit
   [ikiwiki]: http://ikiwiki.info
+  [rdiscount library]: http://rdoc.info/projects/rtomayko/rdiscount
+  [markdown extras]: http://michelf.com/projects/php-markdown/extra/
 
 Quotes
 ------
@@ -154,7 +175,7 @@ Git is the next Unix</a></cite></p>
 
 MIT license
 -----------
-Copyright (c) 2009 Vladimir Dobriakov, vladimir.dobriakov@innoq.com
+Copyright (c) 2009 Vladimir Dobriakov, <http://blog.geekQ.net>
 
 Copyright (c) Simon Rozet
  
