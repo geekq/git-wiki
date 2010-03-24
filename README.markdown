@@ -38,7 +38,7 @@ Example `run.ru` to place in your wiki subfolder:
     require 'git-wiki' # adjust path to your git-wiki installation if needed
     run GitWiki.new(File.dirname(File.dirname(File.expand_path(__FILE__))), ".markdown", "Home", 'wiki')
 
-You can start the web server now with `rackup run.ru`.
+You can start the web server now with `./run.ru`.
 
 
 ### Integrated TODO list(s)
@@ -133,7 +133,7 @@ See also
   [WiGit]: http://el-tramo.be/software/wigit
   [ikiwiki]: http://ikiwiki.info
   [rdiscount library]: http://rdoc.info/projects/rtomayko/rdiscount
-  [markdown extras]: http://michelf.com/projects/php-markdown/extra/
+  [markdown extra]: http://michelf.com/projects/php-markdown/extra/
 
 Quotes
 ------

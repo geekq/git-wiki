@@ -9,27 +9,36 @@ require 'ruby-debug' # TODO: remove
 
 module GitWiki
   class << self
-    attr_accessor :homepage, :extension, :repository, :tree
+    attr_accessor :homepage, :extension, :repository_folder, :subfolder
   end
 
   # Creates a new instance of a Wiki application. Run with
   # `run GitWiki.new(<params>)`
   #
-  # @param [String] repository Folder of the git repository
+  # @param [String] repository_folder Folder of the git repository
   # @param [String] extension `.markdown` is recommended
   # @param [String] homepage The name of the default wiki page, e.g. `Home`
   # @param [Optional String] subfolder
   #     You can use git-wiki for documentation of your software project. Simply
   #     put all the content in markdown format into a subfolder, e.g. `wiki` and
   #     provide the folder name as optional parameter.
-  def self.new(repository, extension, homepage, subfolder = nil)
+  def self.new(repository_folder, extension, homepage, subfolder = nil)
     self.homepage   = homepage
     self.extension  = extension
-    self.repository = Grit::Repo.new(repository)
-    self.tree = self.repository.tree
-    self.tree = self.tree / subfolder if subfolder
+    self.repository_folder = repository_folder
+    self.subfolder = subfolder
+    puts "Initialized wiki with repository at #{repository_folder}"
 
     App
+  end
+
+  def self.repository
+    Grit::Repo.new(self.repository_folder)
+  end
+
+  def self.tree
+    res = self.repository.tree
+    self.subfolder ? res / self.subfolder : res
   end
 
   class PageNotFound < Sinatra::NotFound
