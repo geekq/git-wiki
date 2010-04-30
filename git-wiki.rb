@@ -443,13 +443,16 @@ __END__
         code
           background-color: #EEEEEE
           border: 1px solid #DDDDDD
-          display: block
           font-family: Consolas,"Andale Mono",monospace
           /*font-size: 0.929em
           /*line-height: 1.385em
-          margin-bottom: 1.692em
           overflow: auto
-          padding: 0.615em 0.46em
+          padding: 2px 4px 0px 4px
+        pre
+          code
+            display: block
+            padding: 0.615em 0.46em
+            margin-bottom: 1.692em
         ul.navigation
           list-style-type: none
           display: inline
