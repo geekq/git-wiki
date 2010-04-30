@@ -308,12 +308,24 @@ module GitWiki
       @blob.data
     end
 
+    # return true if the content is empty and the topic has been deleted
+    def delete_if_empty(new_content)
+      Dir.chdir(GitWiki.repository.working_dir) do
+        if new_content.strip.empty?
+          GitWiki.repository.remove(rel_file_name)
+          GitWiki.repository.commit_index(commit_message)
+          return true
+        end
+      end
+      false
+    end
+
     def update_content(new_content)
       return if new_content == content
-      Dir.chdir(GitWiki.repository.working_dir) {
+      Dir.chdir(GitWiki.repository.working_dir) do
         File.open(rel_file_name, "w") { |f| f << new_content }
         GitWiki.repository.add(rel_file_name)
-      }
+      end
       GitWiki.repository.commit_index(commit_message)
     end
 
@@ -386,8 +398,12 @@ module GitWiki
 
     post "/:page" do
       @page = Page.find_or_create(params[:page])
-      @page.update_content(params[:body])
-      redirect "/#{@page}"
+      if @page.delete_if_empty(params[:body])
+        redirect "/pages"
+      else
+        @page.update_content(params[:body])
+        redirect "/#{@page}"
+      end
     end
 
     get "/compact/:page" do # especially suitable for iPhone
