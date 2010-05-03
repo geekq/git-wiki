@@ -483,6 +483,7 @@ __END__
           border-bottom: 2px dotted #4377EF
         div#page_navigation
           margin-top: 0.6em
+          float: right
         div.included
           background-color: #eee
           min-height: 3em
@@ -541,8 +542,6 @@ __END__
 
 @@ show
 - title @page.name
-#content
-  ~"#{@page.to_html}"
 #page_navigation
   %ul.navigation#edit
     %li
@@ -551,6 +550,8 @@ __END__
       %a.service{:href => "/compact/#{@page}"} Compact view
     %li
       %a.service{:href => "/raw/#{@page}"} Raw view
+#content
+  ~"#{@page.to_html}"
 :javascript
   document.getElementById("linkEdit").focus();
 
