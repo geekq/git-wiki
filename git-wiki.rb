@@ -546,22 +546,26 @@ __END__
 #page_navigation
   %ul.navigation#edit
     %li
-      %a.service{:href => "/#{@page}/edit"} Edit this page
+      %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit this page
     %li
       %a.service{:href => "/compact/#{@page}"} Compact view
     %li
       %a.service{:href => "/raw/#{@page}"} Raw view
+:javascript
+  document.getElementById("linkEdit").focus();
 
 @@ edit
 - title "Editing #{@page.name}"
 %h1= title
 %form{:method => 'POST', :action => "/#{@page}"}
   %p
-    %textarea{:name => 'body', :rows => 30, :style => "width: 100%"}= @page.content
+    %textarea{:name => 'body', :id => 'topicContent', :rows => 30, :style => "width: 100%"}= @page.content
   %p
     %input.submit{:type => :submit, :value => "Save as the newest version"}
     or
     %a.cancel{:href=>"/#{@page}"} cancel
+:javascript
+  document.getElementById("topicContent").focus();
 
 @@ list
 - title "Listing pages"
