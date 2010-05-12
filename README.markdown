@@ -41,6 +41,33 @@ Example `run.ru` to place in your wiki subfolder:
 You can start the web server now with `./run.ru`.
 
 
+### Upstream git repository
+
+Scenario:
+* you use a central git server e.g. gitosis or github.com to manage the
+  code for your project
+* you use a subdirectory e.g. `wiki` as descibed above to store
+  documentation of your project
+* you can run git-wiki locally on a subdirectory (s. above)
+* but you want to integrate changes in your wiki quickly without the need
+  to merge your local wiki changes manually
+
+Solution: use this git-wiki version! Configure a git remote with the
+name `origin`. git-wiki automatically recognizes this and pulls and
+pushes on every topic change if the upstream server is reachable.
+
+Note: even if the central gitosis server and the git-wiki are installed
+on the same computer, you still need two git repositories. IkiWiki
+(another git based wiki) has similar requirements [ikiwiki  repos][]:
+
+> You may find yourself wondering why there are so many git repositories
+for a single wiki. The setup with a remote "bare" repository allows
+Ikiwiki to avoid a situation where you might "push" content to a
+non-bare repository, which would cause the "working copy" of the
+"source directory" repository to get out of sync with the sequence of
+commits in the git database. In short, **never push to a non-bare git
+repository**.
+
 ### Integrated TODO list(s)
 
 Just write TODO or DONE at the beginning of a line with task you would
@@ -120,6 +147,7 @@ See also
   lists, code blocks without indentation, abbreviations
 
 
+  [ikiwiki repos]: http://library.linode.com/web-applications/wikis/ikiwiki/ubuntu-10.04-lucid#using_ikiwiki
   [Sinatra]: http://www.sinatrarb.com
   [GitHub]: http://github.com/sr/git-wiki
   [forks]: http://github.com/sr/git-wiki/network

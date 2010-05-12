@@ -33,7 +33,49 @@ module GitWiki
   end
 
   def self.repository
-    Grit::Repo.new(self.repository_folder)
+    @repo ||= Grit::Repo.new(self.repository_folder)
+  end
+
+  def self.commit(commit_message)
+    upstream_configured = self.repository.git.list_remotes.include?('origin')
+    upstream_server_online = true
+
+    Dir.chdir(GitWiki.repository.working_dir) do
+      `git pull`
+
+      if $? != 0
+        upstream_server_online = false
+        puts "Upstream server unavailable! Saving only locally."
+      end
+
+      repository.commit_index(commit_message)
+
+      if upstream_server_online
+        `git push`
+        puts "Pushed to remote server successfully." if $? != 0
+      end
+    end
+  end
+
+  # return true if the content is empty and the topic has been deleted
+  def self.delete_if_empty(page, new_content)
+    Dir.chdir(GitWiki.repository.working_dir) do
+      if new_content.strip.empty?
+        GitWiki.repository.remove(page.rel_file_name)
+        GitWiki.commit("Wiki: deleted #{page.name}")
+        return true
+      end
+    end
+    false
+  end
+
+  def self.update_content(page, new_content)
+    return if new_content == page.content
+    Dir.chdir(GitWiki.repository.working_dir) do
+      File.open(page.rel_file_name, "w") { |f| f << new_content }
+      GitWiki.repository.add(page.rel_file_name)
+      GitWiki.commit(page.commit_message)
+    end
   end
 
   def self.tree
@@ -308,36 +350,14 @@ module GitWiki
       @blob.data
     end
 
-    # return true if the content is empty and the topic has been deleted
-    def delete_if_empty(new_content)
-      Dir.chdir(GitWiki.repository.working_dir) do
-        if new_content.strip.empty?
-          GitWiki.repository.remove(rel_file_name)
-          GitWiki.repository.commit_index(commit_message)
-          return true
-        end
-      end
-      false
+    def rel_file_name
+      fname = name + self.class.extension
+      res = File.join(GitWiki.tree.basename, fname) rescue fname
     end
 
-    def update_content(new_content)
-      return if new_content == content
-      Dir.chdir(GitWiki.repository.working_dir) do
-        File.open(rel_file_name, "w") { |f| f << new_content }
-        GitWiki.repository.add(rel_file_name)
-      end
-      GitWiki.repository.commit_index(commit_message)
+    def commit_message
+      new? ? "Wiki: created #{name}" : "Wiki: updated #{name}"
     end
-
-    private
-      def rel_file_name
-        fname = name + self.class.extension
-        res = File.join(GitWiki.tree.basename, fname) rescue fname
-      end
-
-      def commit_message
-        new? ? "Wiki: created #{name}" : "Wiki: updated #{name}"
-      end
   end
 
   class App < Sinatra::Base
@@ -398,10 +418,10 @@ module GitWiki
 
     post "/:page" do
       @page = Page.find_or_create(params[:page])
-      if @page.delete_if_empty(params[:body])
+      if GitWiki.delete_if_empty(@page, params[:body])
         redirect "/pages"
       else
-        @page.update_content(params[:body])
+        GitWiki.update_content(@page, params[:body])
         redirect "/#{@page}"
       end
     end
