@@ -44,6 +44,7 @@ You can start the web server now with `./run.ru`.
 ### Upstream git repository
 
 Scenario:
+
 * you use a central git server e.g. gitosis or github.com to manage the
   code for your project
 * you use a subdirectory e.g. `wiki` as descibed above to store
@@ -58,7 +59,7 @@ pushes on every topic change if the upstream server is reachable.
 
 Note: even if the central gitosis server and the git-wiki are installed
 on the same computer, you still need two git repositories. IkiWiki
-(another git based wiki) has similar requirements [ikiwiki  repos][]:
+(another git based wiki) has similar requirements [ikiwiki repos][]:
 
 > You may find yourself wondering why there are so many git repositories
 for a single wiki. The setup with a remote "bare" repository allows
@@ -113,7 +114,14 @@ ActiveRecord but appear as it is.
 
 ### Other plans
 
-* TODO: keyboard short cuts for edit and saving
+* TODO: show revision hash of the current page
+* TODO: show git repository log -5 (master, origin/master, last changes,
+        time) with ajax. 3 seconds after the page is loaded.
+* TODO: user specified commit message to mark major changes
+* TODO: pull before showing page
+* TODO: make faster by doing push/pull in the background with fork
+* TODO: find pages by prefix - searching for `cl` should show the
+  existing `cloud` page, not the edit mode for `cl`
 * TODO: check dead links
 * TODO: search engine
 * IDEA: presentation system - markdown + my S5 alternative
@@ -203,7 +211,7 @@ Git is the next Unix</a></cite></p>
 
 MIT license
 -----------
-Copyright (c) 2009 Vladimir Dobriakov, <http://blog.geekQ.net>
+Copyright (c) 2009, 2010 Vladimir Dobriakov, <http://blog.geekQ.net>
 
 Copyright (c) Simon Rozet
  
