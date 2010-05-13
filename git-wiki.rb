@@ -4,9 +4,6 @@ require "haml"
 require "grit"
 require "rdiscount"
 
-require 'pp' # TODO: remove
-require 'ruby-debug' # TODO: remove
-
 module GitWiki
   class << self
     attr_accessor :homepage, :extension, :repository_folder, :subfolder
