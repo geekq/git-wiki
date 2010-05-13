@@ -38,14 +38,14 @@ module GitWiki
     upstream_server_online = true
 
     Dir.chdir(GitWiki.repository.working_dir) do
+      repository.commit_index(commit_message)
+
       `git pull`
 
       if $? != 0
         upstream_server_online = false
         puts "Upstream server unavailable! Saving only locally."
       end
-
-      repository.commit_index(commit_message)
 
       if upstream_server_online
         `git push`
