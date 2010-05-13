@@ -400,7 +400,8 @@ module GitWiki
         git_obj = git_obj/part
         not_found if git_obj.nil?
       end
-      content_type MIME::Types.type_for(File.extname(params[:splat].last))
+      mime_type = MIME::Types.type_for(File.extname(params[:splat].last))
+      content_type(mime_type.empty? ? 'application/octet-stream' : mime_type)
       body git_obj.data
     end
 
