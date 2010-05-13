@@ -70,6 +70,7 @@ module GitWiki
   end
 
   def self.update_content(page, new_content)
+    new_content.gsub!("\r", "")
     return if new_content == page.content
     Dir.chdir(GitWiki.repository.working_dir) do
       File.open(page.rel_file_name, "w") { |f| f << new_content }
