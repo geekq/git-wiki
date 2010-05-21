@@ -54,7 +54,9 @@ module GitWiki
       repository.commit_index(commit_message)
 
       if upstream_server_online
-        `git push`
+        Dir.chdir(GitWiki.repository.working_dir) do
+          `git push`
+        end
         puts "Pushed to remote server successfully." if $? != 0
       else
         puts "Upstream server unavailable! Saving only locally."
