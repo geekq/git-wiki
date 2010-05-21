@@ -7,6 +7,7 @@ require "rdiscount"
 module GitWiki
   class << self
     attr_accessor :homepage, :extension, :repository_folder, :subfolder
+    attr_accessor :upstream_server_online
   end
 
   # Creates a new instance of a Wiki application. Run with
@@ -33,23 +34,28 @@ module GitWiki
     @repo ||= Grit::Repo.new(self.repository_folder)
   end
 
-  def self.commit(commit_message)
-    upstream_configured = self.repository.git.list_remotes.include?('origin')
-    upstream_server_online = true
+  def self.upstream_configured?
+    self.repository.git.list_remotes.include?('origin')
+  end
 
+  def self.refresh!
+    if upstream_configured?
+      `git pull --rebase`
+      upstream_server_online = ($? == 0)
+    else
+      upstream_server_online = false
+    end
+  end
+
+  def self.commit(commit_message)
     Dir.chdir(GitWiki.repository.working_dir) do
       repository.commit_index(commit_message)
-
-      `git pull`
-
-      if $? != 0
-        upstream_server_online = false
-        puts "Upstream server unavailable! Saving only locally."
-      end
 
       if upstream_server_online
         `git push`
         puts "Pushed to remote server successfully." if $? != 0
+      else
+        puts "Upstream server unavailable! Saving only locally."
       end
     end
   end
@@ -371,6 +377,7 @@ module GitWiki
 
     before do
       content_type "text/html", :charset => "utf-8"
+      GitWiki.refresh!
     end
 
     get "/" do
