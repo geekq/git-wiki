@@ -35,16 +35,18 @@ module GitWiki
   end
 
   def self.upstream_configured?
-    self.repository.git.list_remotes.include?('origin')
+    Dir.chdir(GitWiki.repository.working_dir) do
+      return self.repository.git.list_remotes.include?('origin')
+    end	
   end
 
   def self.refresh!
     Dir.chdir(GitWiki.repository.working_dir) do
       if upstream_configured?
         `git pull --rebase`
-        upstream_server_online = ($? == 0)
+        self.upstream_server_online = ($? == 0)
       else
-        upstream_server_online = false
+        self.upstream_server_online = false
       end
     end
   end
@@ -53,7 +55,7 @@ module GitWiki
     Dir.chdir(GitWiki.repository.working_dir) do
       repository.commit_index(commit_message)
 
-      if upstream_server_online
+      if self.upstream_server_online
         Dir.chdir(GitWiki.repository.working_dir) do
           `git push`
         end
