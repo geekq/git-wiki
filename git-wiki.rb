@@ -39,11 +39,13 @@ module GitWiki
   end
 
   def self.refresh!
-    if upstream_configured?
-      `git pull --rebase`
-      upstream_server_online = ($? == 0)
-    else
-      upstream_server_online = false
+    Dir.chdir(GitWiki.repository.working_dir) do
+      if upstream_configured?
+        `git pull --rebase`
+        upstream_server_online = ($? == 0)
+      else
+        upstream_server_online = false
+      end
     end
   end
 
