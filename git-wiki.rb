@@ -37,7 +37,7 @@ module GitWiki
   def self.upstream_configured?
     Dir.chdir(GitWiki.repository.working_dir) do
       return self.repository.git.list_remotes.include?('origin')
-    end	
+    end
   end
 
   def self.refresh!
@@ -468,6 +468,7 @@ __END__
 %html
   %head
     %title= title
+    %meta{ :name => "viewport", :content => "width = device-width, user-scalable = no" }
     %style{ :type => 'text/css'}
       :sass
         del
