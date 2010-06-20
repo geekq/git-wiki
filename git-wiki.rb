@@ -278,7 +278,7 @@ module GitWiki
     end
 
     def self.find(name)
-      page_blob = find_blob(name)
+      page_blob = GitWiki.tree/(name + extension)
       raise PageNotFound.new(name) unless page_blob
       new(page_blob)
     end
@@ -286,7 +286,10 @@ module GitWiki
     def self.find_or_create(name)
       find(name)
     rescue PageNotFound
-      new(create_blob_for(name))
+      Grit::Blob.create(GitWiki.repository, {
+        :name => name + extension,
+        :data => ""
+      })
     end
 
     def self.css_class_for(name)
@@ -300,21 +303,18 @@ module GitWiki
       GitWiki.extension || raise
     end
 
-    def self.find_blob(page_name)
-      GitWiki.tree/(page_name + extension)
-    end
-    private_class_method :find_blob
-
-    def self.create_blob_for(page_name)
-      Grit::Blob.create(GitWiki.repository, {
-        :name => page_name + extension,
-        :data => ""
-      })
-    end
-    private_class_method :create_blob_for
-
     def initialize(blob)
       @blob = blob
+      puts last_changed
+    end
+
+    def last_changed
+      res = nil
+      Dir.chdir(GitWiki.repository.working_dir) do
+        file_path = File.join(GitWiki.subfolder, @blob.name)
+        res = `git log -1 --pretty=format:'%ci' #{file_path}`
+      end
+      res
     end
 
     def to_html
@@ -608,6 +608,8 @@ body.compact
 @@ show
 - title @page.name
 #page_navigation
+  %p
+    = "Last change " + @page.last_changed
   %ul.navigation#edit
     %li
       %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit this page
@@ -623,6 +625,8 @@ body.compact
 @@ edit
 - title "Editing #{@page.name}"
 %h1= title
+%p
+  = "Last change " + @page.last_changed
 %form{:method => 'POST', :action => "/#{@page}"}
   %p
     %textarea{:name => 'body', :id => 'topicContent', :rows => 30, :style => "width: 100%"}= @page.content
