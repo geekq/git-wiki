@@ -305,7 +305,6 @@ module GitWiki
 
     def initialize(blob)
       @blob = blob
-      puts last_changed
     end
 
     def last_changed
