@@ -390,6 +390,11 @@ module GitWiki
       redirect "/" + GitWiki.homepage
     end
 
+    get "/standard.css" do
+      content_type 'text/css'
+      sass :standard_css
+    end
+
     get "/pages" do
       @pages = Page.find_all
       haml :list
@@ -463,108 +468,109 @@ module GitWiki
 end
 
 __END__
+@@ standard_css
+del
+  color: gray
+code
+  background-color: #EEEEEE
+  border: 1px solid #DDDDDD
+  font-family: Consolas,"Andale Mono",monospace
+  /*font-size: 0.929em
+  /*line-height: 1.385em
+  overflow: auto
+  padding: 2px 4px 0px 4px
+pre
+  code
+    display: block
+    padding: 0.615em 0.46em
+    margin-bottom: 1.692em
+ul.navigation
+  list-style-type: none
+  display: inline
+  margin: 0
+  padding: 0
+  li
+    display: inline
+    margin: 0
+    padding: 0
+    padding-right: 1.5em
+table
+  border-collapse: collapse
+  border: 1px solid black
+  td, th
+    border-left: 1px solid black
+    border-right: 1px solid black
+    border-bottom: 1px dotted lightgrey
+    padding: 0px 4px
+  th
+    border-bottom: 1px solid black
+    text-align: left
+    padding: 3px 4px
+a.service
+  color: #4377EF
+  text-decoration: none
+  font-weight: bold
+a.service:hover
+  border-bottom: 2px dotted #4377EF
+div#page_navigation
+  margin-top: 0.6em
+  float: right
+div.included
+  background-color: #eee
+  min-height: 3em
+  padding: 0
+  margin-top: 0.7em
+  h2
+    padding: 0
+    margin: 0
+    position: absolute
+    right: 1em
+    width: auto
+    font-weight: normal !important
+    text-decoration: none !important
+    color: grey
+    text-align: right
+
+body.vimlike
+  margin-left: 2em
+  font-family: monospace
+  div#content
+    h1, h2, h3, h4, h5, h6
+      font-size: 100%
+    h1
+      text-decoration: underline
+      letter-spacing: 0.3em
+    h2
+      text-decoration: underline
+    ul
+      padding-left: 0.3em
+      list-style-type: square
+      list-style-position: inside
+    li ul
+      list-style-type: circle
+      padding-left: 1.2em
+    li ul li ul
+      list-style-type: disc
+
+@media print
+  .service
+    display: none
+  div.todo
+    line-height: 160%
+
+body.compact
+  margin-left: inherit
+  font-family: Helvetica, sans-serif
+  .service
+    display: none
+
 @@ layout
 !!!
 %html
   %head
     %title= title
     %meta{ :name => "viewport", :content => "width = device-width, user-scalable = no" }
-    %style{ :type => 'text/css'}
-      :sass
-        del
-          color: gray
-        code
-          background-color: #EEEEEE
-          border: 1px solid #DDDDDD
-          font-family: Consolas,"Andale Mono",monospace
-          /*font-size: 0.929em
-          /*line-height: 1.385em
-          overflow: auto
-          padding: 2px 4px 0px 4px
-        pre
-          code
-            display: block
-            padding: 0.615em 0.46em
-            margin-bottom: 1.692em
-        ul.navigation
-          list-style-type: none
-          display: inline
-          margin: 0
-          padding: 0
-          li
-            display: inline
-            margin: 0
-            padding: 0
-            padding-right: 1.5em
-        table
-          border-collapse: collapse
-          border: 1px solid black
-          td, th
-            border-left: 1px solid black
-            border-right: 1px solid black
-            border-bottom: 1px dotted lightgrey
-            padding: 0px 4px
-          th
-            border-bottom: 1px solid black
-            text-align: left
-            padding: 3px 4px
-        a.service
-          color: #4377EF
-          text-decoration: none
-          font-weight: bold
-        a.service:hover
-          border-bottom: 2px dotted #4377EF
-        div#page_navigation
-          margin-top: 0.6em
-          float: right
-        div.included
-          background-color: #eee
-          min-height: 3em
-          padding: 0
-          margin-top: 0.7em
-          h2
-            padding: 0
-            margin: 0
-            position: absolute
-            right: 1em
-            width: auto
-            font-weight: normal !important
-            text-decoration: none !important
-            color: grey
-            text-align: right
-
-        body.vimlike
-          margin-left: 2em
-          font-family: monospace
-          div#content
-            h1, h2, h3, h4, h5, h6
-              font-size: 100%
-            h1
-              text-decoration: underline
-              letter-spacing: 0.3em
-            h2
-              text-decoration: underline
-            ul
-              padding-left: 0.3em
-              list-style-type: square
-              list-style-position: inside
-            li ul
-              list-style-type: circle
-              padding-left: 1.2em
-            li ul li ul
-              list-style-type: disc
-
-        @media print
-          .service
-            display: none
-          div.todo
-            line-height: 160%
-
-        body.compact
-          margin-left: inherit
-          font-family: Helvetica, sans-serif
-          .service
-            display: none
+    %link( rel="stylesheet" href="standard.css" type="text/css")
   %body{:class => @global_style}
     %ul.navigation
       %li
