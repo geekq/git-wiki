@@ -40,15 +40,19 @@ module GitWiki
     end
   end
 
+  # @return Output of the rebase command
   def self.refresh!
+    res = ""
     Dir.chdir(GitWiki.repository.working_dir) do
       if upstream_configured?
-        `git pull --rebase`
+        res =  "$ git pull --rebase\n"
+        res += `date --rfc-3339=seconds;git pull --rebase;date --rfc-3339=seconds`
         self.upstream_server_online = ($? == 0)
       else
         self.upstream_server_online = false
       end
     end
+    res
   end
 
   def self.commit(commit_message)
@@ -383,7 +387,6 @@ module GitWiki
 
     before do
       content_type "text/html", :charset => "utf-8"
-      GitWiki.refresh!
     end
 
     get "/" do
@@ -401,6 +404,16 @@ module GitWiki
         body git_obj.data
       else
         halt 404
+      end
+    end
+
+    get "/refresh" do
+      Dir.chdir(GitWiki.repository.working_dir) do
+        haml :changes, :locals => {
+          :command_output => GitWiki.refresh!,
+          :last_changes => `git log -10 --pretty=format:'%h - %d %s (%cr) <%an>'`,
+          :return_to => params[:return_to]
+        }
       end
     end
 
@@ -588,6 +601,8 @@ body.compact
         %a.service{ :href => "/#{GitWiki.homepage}" } Home
       %li
         %a.service{ :href => "/pages" } All pages
+      %li
+        %a.service{ :href => "/refresh?return_to=#{request.path_info}" } Refresh
     = yield
 
 @@ show
@@ -617,6 +632,17 @@ body.compact
     %a.cancel{:href=>"/#{@page}"} cancel
 :javascript
   document.getElementById("topicContent").focus();
+
+@@ changes
+- title "Last changes"
+%h2= "Just rebased:"
+%pre
+  %code&= command_output
+%h2= "Last changes:"
+%pre
+  %code&= last_changes
+-if return_to
+  %a{:href => return_to}= "Back to the last page"
 
 @@ list
 - title "Listing pages"
