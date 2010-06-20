@@ -393,9 +393,9 @@ module GitWiki
       redirect "/" + GitWiki.homepage
     end
 
-    get "/standard.css" do
+    get "/git-wiki-default.css" do
       content_type 'text/css'
-      sass :standard_css
+      sass :git_wiki_default
     end
 
     get "/project.css" do
@@ -490,7 +490,7 @@ module GitWiki
 end
 
 __END__
-@@ standard_css
+@@ git_wiki_default
 del
   color: gray
 code
@@ -592,7 +592,7 @@ body.compact
   %head
     %title= title
     %meta{ :name => "viewport", :content => "width = device-width, user-scalable = no" }
-    %link( rel="stylesheet" href="/standard.css" type="text/css")
+    %link( rel="stylesheet" href="/git-wiki-default.css" type="text/css")
     - if GitWiki.tree/'project.css'
       %link( rel="stylesheet" href="/project.css" type="text/css")
   %body{:class => @global_style}
