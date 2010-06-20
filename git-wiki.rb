@@ -311,7 +311,7 @@ module GitWiki
     def last_changed
       res = nil
       Dir.chdir(GitWiki.repository.working_dir) do
-        file_path = File.join(GitWiki.subfolder, @blob.name)
+        file_path = GitWiki.subfolder ? File.join(GitWiki.subfolder, @blob.name) : @blob.name
         res = `git log -1 --pretty=format:'%ci' #{file_path}`
       end
       res
