@@ -286,10 +286,10 @@ module GitWiki
     def self.find_or_create(name)
       find(name)
     rescue PageNotFound
-      Grit::Blob.create(GitWiki.repository, {
+      new(Grit::Blob.create(GitWiki.repository, {
         :name => name + extension,
         :data => ""
-      })
+      }))
     end
 
     def self.css_class_for(name)
