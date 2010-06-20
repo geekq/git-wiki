@@ -592,9 +592,9 @@ body.compact
   %head
     %title= title
     %meta{ :name => "viewport", :content => "width = device-width, user-scalable = no" }
-    %link( rel="stylesheet" href="standard.css" type="text/css")
+    %link( rel="stylesheet" href="/standard.css" type="text/css")
     - if GitWiki.tree/'project.css'
-      %link( rel="stylesheet" href="project.css" type="text/css")
+      %link( rel="stylesheet" href="/project.css" type="text/css")
   %body{:class => @global_style}
     %ul.navigation
       %li
