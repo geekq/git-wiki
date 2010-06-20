@@ -8,7 +8,7 @@ replace trac (wiki and ticket system), a CMS and sticky notes.
 Features of this fork (by geekQ)
 ---------------------
 
-### Support for images
+### Support for images and attachments
 
 You can add images to `/img` folder of your git repository. Subfolders
 are also supported. At least gif, png and jpg supported - content type
@@ -17,12 +17,21 @@ your wiki pages like `![My picture](/img/2009/my_picture.jpg)`
 
 No web interface at this time - use `git commit`.
 
+Similarly you can use attachments by putting them into the `documents`
+folder. Link like `[Download my document](/documents/my_doc.doc)`
+
 
 ### Custom h1 header
 
 If your wiki page contains a markdown h1 header, then this one is used
 on the page. If not, then h1 is created out of the file name (as in
 original git-wiki).
+
+
+### Style
+
+You can provide a custom stylesheet for your wiki or project in the
+`project.css` file. 
 
 
 ### Wiki in a subfolder
@@ -118,7 +127,7 @@ ActiveRecord but appear as it is.
 * TODO: show git repository log -5 (master, origin/master, last changes,
         time) with ajax. 3 seconds after the page is loaded.
 * TODO: user specified commit message to mark major changes
-* TODO: pull before showing page
+* DONE: pull before showing page
 * TODO: make faster by doing push/pull in the background with fork
 * TODO: find pages by prefix - searching for `cl` should show the
   existing `cloud` page, not the edit mode for `cl`

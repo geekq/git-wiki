@@ -395,6 +395,15 @@ module GitWiki
       sass :standard_css
     end
 
+    get "/project.css" do
+      if (git_obj = GitWiki.tree/'project.css')
+        content_type 'text/css'
+        body git_obj.data
+      else
+        halt 404
+      end
+    end
+
     get "/pages" do
       @pages = Page.find_all
       haml :list
@@ -571,6 +580,8 @@ body.compact
     %title= title
     %meta{ :name => "viewport", :content => "width = device-width, user-scalable = no" }
     %link( rel="stylesheet" href="standard.css" type="text/css")
+    - if GitWiki.tree/'project.css'
+      %link( rel="stylesheet" href="project.css" type="text/css")
   %body{:class => @global_style}
     %ul.navigation
       %li
