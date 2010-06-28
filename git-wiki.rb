@@ -8,6 +8,7 @@ module GitWiki
   class << self
     attr_accessor :homepage, :extension, :repository_folder, :subfolder
     attr_accessor :upstream_server_online
+    attr_accessor :messages
   end
 
   # Creates a new instance of a Wiki application. Run with
@@ -25,13 +26,14 @@ module GitWiki
     self.extension  = extension
     self.repository_folder = repository_folder
     self.subfolder = subfolder
+    self.messages = []
     puts "Initialized wiki with repository at #{repository_folder}"
 
     App
   end
 
-  def add_message(msg)
-    # TODO: show on the web page
+  def self.add_message(msg)
+    messages << msg
     puts msg
   end
 
@@ -395,6 +397,7 @@ module GitWiki
 
     before do
       content_type "text/html", :charset => "utf-8"
+      @messages = GitWiki.messages
     end
 
     get "/" do
@@ -453,13 +456,14 @@ module GitWiki
 
     get "/:page/edit" do
       @page = Page.find_or_create(params[:page])
-      @global_style = 'vimlike'
+#~      @global_style = 'vimlike'
       haml :edit
     end
 
     get "/:page" do
+      GitWiki.add_message "Hello world"
       @page = Page.find(params[:page])
-      @global_style = 'vimlike'
+#~      @global_style = 'vimlike'
       haml :show
     end
 
@@ -499,6 +503,8 @@ end
 
 __END__
 @@ git_wiki_default
+#content
+  max-width: 50em
 del
   color: gray
 code
@@ -507,9 +513,10 @@ code
   font-family: Consolas,"Andale Mono",monospace
   /*font-size: 0.929em
   /*line-height: 1.385em
-  overflow: auto
+  overflow: show
   padding: 2px 4px 0px 4px
 pre
+  background-color: #EEEEEE
   code
     display: block
     padding: 0.615em 0.46em
@@ -524,6 +531,10 @@ ul.navigation
     margin: 0
     padding: 0
     padding-right: 1.5em
+ul.messages
+  border: 1px dashed red
+  list-style: none
+  font-family: Consolas,"Andale Mono",monospace
 table
   border-collapse: collapse
   border: 1px solid black
@@ -612,11 +623,15 @@ body.compact
       %li
         %a.service{ :href => "/refresh?return_to=#{request.path_info}" } Refresh
     = yield
+    %ul( class="messages")
+      -@messages.each do |m|
+        %li
+          = m
 
 @@ show
 - title @page.name
-#page_navigation
-  %p
+#page_navigation.page_navigation
+  %p(class='last_changed')
     = "Last change " + @page.last_changed
   %ul.navigation#edit
     %li
@@ -625,7 +640,7 @@ body.compact
       %a.service{:href => "/compact/#{@page}"} Compact view
     %li
       %a.service{:href => "/raw/#{@page}"} Raw view
-#content
+#content.content
   ~"#{@page.to_html}"
 :javascript
   document.getElementById("linkEdit").focus();
@@ -633,7 +648,7 @@ body.compact
 @@ edit
 - title "Editing #{@page.name}"
 %h1= title
-%p
+%p(class='last_changed')
   = "Last change " + @page.last_changed
 %form{:method => 'POST', :action => "/#{@page}"}
   %p
