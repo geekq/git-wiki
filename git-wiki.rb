@@ -30,6 +30,11 @@ module GitWiki
     App
   end
 
+  def add_message(msg)
+    # TODO: show on the web page
+    puts msg
+  end
+
   def self.repository
     @repo ||= Grit::Repo.new(self.repository_folder)
   end
@@ -61,11 +66,15 @@ module GitWiki
 
       if self.upstream_server_online
         Dir.chdir(GitWiki.repository.working_dir) do
-          `git push`
+          res = `git push`
+          if $?.exitstatus != 0
+            add_message "git push failed!\n#{res}"
+          else
+            add_message "git push successful!\n#{res}"
+          end
         end
-        puts "Pushed to remote server successfully." if $? != 0
       else
-        puts "Upstream server unavailable! Saving only locally."
+        add_message "Upstream server unavailable! Saving only locally."
       end
     end
   end
