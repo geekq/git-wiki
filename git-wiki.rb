@@ -59,6 +59,7 @@ module GitWiki
         self.upstream_server_online = false
       end
     end
+    add_message res
     res
   end
 
@@ -455,19 +456,22 @@ module GitWiki
     end
 
     get "/:page/edit" do
+      GitWiki.refresh!
       @page = Page.find_or_create(params[:page])
-#~      @global_style = 'vimlike'
       haml :edit
     end
 
     get "/:page" do
-      GitWiki.add_message "Hello world"
+      GitWiki.refresh!
+      Dir.chdir(GitWiki.repository.working_dir) do
+        GitWiki.add_message `git log -10 --pretty=format:'%h - %d %s (%cr) <%an>'`
+      end
       @page = Page.find(params[:page])
-#~      @global_style = 'vimlike'
       haml :show
     end
 
     post "/:page" do
+      GitWiki.refresh!
       @page = Page.find_or_create(params[:page])
       if GitWiki.delete_if_empty(@page, params[:body])
         redirect "/pages"
@@ -535,6 +539,8 @@ ul.messages
   border: 1px dashed red
   list-style: none
   font-family: Consolas,"Andale Mono",monospace
+  padding: 0
+  margin-top: 5em
 table
   border-collapse: collapse
   border: 1px solid black
@@ -626,7 +632,9 @@ body.compact
     %ul( class="messages")
       -@messages.each do |m|
         %li
-          = m
+          %pre
+            %code
+              = m
 
 @@ show
 - title @page.name
