@@ -541,6 +541,8 @@ ul.messages
   font-family: Consolas,"Andale Mono",monospace
   padding: 0
   margin-top: 5em
+  font-size: 60%
+  overflow: hidden
 table
   border-collapse: collapse
   border: 1px solid black
@@ -616,7 +618,7 @@ body.compact
 %html
   %head
     %title= title
-    %meta{ :name => "viewport", :content => "width = device-width, user-scalable = no" }
+    %meta{ :name => "viewport", :content => "width = device-width, user-scalable = yes" }
     %link( rel="stylesheet" href="/git-wiki-default.css" type="text/css")
     - if GitWiki.tree/'project.css'
       %link( rel="stylesheet" href="/project.css" type="text/css")
