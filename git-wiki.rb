@@ -627,8 +627,13 @@ body.vimlike
 body.compact
   margin-left: inherit
   font-family: Helvetica, sans-serif
-  .service
+  .navigation
     display: none
+  #content
+    border: none
+    margin: 0
+    max-width: inherit
+    width: 100%
 
 @@ layout
 !!!
