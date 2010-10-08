@@ -507,8 +507,16 @@ end
 
 __END__
 @@ git_wiki_default
+body
+  background-color: #DDD
 #content
-  max-width: 50em
+  max-width: 40em
+  background-color: white
+  border: 1px solid #888
+  padding: 0 10px 8px 8px
+  margin-left: 10px
+  margin-bottom: 10px
+  float: left
 del
   color: gray
 code
@@ -543,6 +551,7 @@ ul.messages
   margin-top: 5em
   font-size: 60%
   overflow: hidden
+  display: none
 table
   border-collapse: collapse
   border: 1px solid black
@@ -561,9 +570,17 @@ a.service
   font-weight: bold
 a.service:hover
   border-bottom: 2px dotted #4377EF
-div#page_navigation
-  margin-top: 0.6em
+#main_navigation, #page_navigation
+  float: left
+  font-family: sans-serif
+  margin-top: 0
+  margin-bottom: 8px
+  margin-left: 10px
+#page_navigation
   float: right
+.last_changed
+  margin: 0
+  font-size: 80%
 div.included
   background-color: #eee
   min-height: 3em
@@ -623,7 +640,7 @@ body.compact
     - if GitWiki.tree/'project.css'
       %link( rel="stylesheet" href="/project.css" type="text/css")
   %body{:class => @global_style}
-    %ul.navigation
+    %ul.navigation#main_navigation
       %li
         %a.service{ :href => "/#{GitWiki.homepage}" } Home
       %li
@@ -641,8 +658,6 @@ body.compact
 @@ show
 - title @page.name
 #page_navigation.page_navigation
-  %p(class='last_changed')
-    = "Last change " + @page.last_changed
   %ul.navigation#edit
     %li
       %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit this page
@@ -650,6 +665,8 @@ body.compact
       %a.service{:href => "/compact/#{@page}"} Compact view
     %li
       %a.service{:href => "/raw/#{@page}"} Raw view
+  %p(class='last_changed')
+    = "Last change " + @page.last_changed
 #content.content
   ~"#{@page.to_html}"
 :javascript
