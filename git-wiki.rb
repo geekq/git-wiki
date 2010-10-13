@@ -340,17 +340,28 @@ module GitWiki
     end
 
     def inject_sections(orig, level=1)
+      return unless orig
       sections = orig.split("<h#{level}")
       processed_sections = sections.each_with_index.map do |content, i|
-        content = inject_sections(content, level+1) if level < 6
+        # use text from the header to build an id
+        header_match = content.match(/[a-zA-Z][^<]*/)
+        if header_match
+          # replace all non-letter-non-digits with minus, merge minus chars, remove trailing minus
+          header_id = header_match[0].gsub(/[^a-zA-Z0-9]/, '-').gsub(/\-+/, '-').gsub(/\-$/, '').downcase
+        end
+        puts "generated id #{header_id}"
+        if level < 6 and content
+          header, section_content = content.split("</h#{level}", 2)
+          content = "#{header}</h#{level}#{inject_sections(section_content, level+1)}"
+        end
         if i == 0
           content
         else
-          content + '</div>'
+          id_attr = "id='#{header_id}'" if header_id
+          "<div class='section#{level}'><h#{level} #{id_attr}" + content + '</div>'
         end
       end
-      header_id = 'hhh'
-      return processed_sections.join("<div class='section#{level}'><h#{level} id='#{header_id}'")
+      return processed_sections.join
     end
 
     def inject_todo(orig)
