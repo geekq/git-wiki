@@ -4,6 +4,7 @@ require "haml"
 require "sass"
 require "grit"
 require "rdiscount"
+require "cgi"
 
 module GitWiki
   class << self
@@ -144,7 +145,7 @@ module GitWiki
 
     def inner_html
       attr_str = attributes.map{|key, value| "#{key}:#{value} "}.join
-      html = "<span style='font-weight:bold'>#{start}</span>#{attr_str}#{desc}"
+      html = "<span style='font-weight:bold'>#{start}</span>#{attr_str}#{CGI.escapeHTML(desc)}"
       html = "<del>#{html}</del>" if done?
       html
     end
@@ -684,7 +685,7 @@ body.compact
         %li
           %pre
             %code
-              = m
+              &= m
 
 @@ show
 - title @page.name
