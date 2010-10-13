@@ -538,6 +538,7 @@ body
   background-color: #DDD
 .content
   max-width: 40em
+  width: 80%
   background-color: white
   border: 1px solid #888
   padding: 0 10px 8px 8px
