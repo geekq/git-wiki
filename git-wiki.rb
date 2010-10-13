@@ -536,7 +536,7 @@ __END__
 @@ git_wiki_default
 body
   background-color: #DDD
-#content
+.content
   max-width: 40em
   background-color: white
   border: 1px solid #888
@@ -627,7 +627,7 @@ div.included
 body.vimlike
   margin-left: 2em
   font-family: monospace
-  div#content
+  div.content
     h1, h2, h3, h4, h5, h6
       font-size: 100%
     h1
@@ -656,7 +656,7 @@ body.compact
   font-family: Helvetica, sans-serif
   .navigation
     display: none
-  #content
+  .content
     border: none
     margin: 0
     max-width: inherit
@@ -699,7 +699,7 @@ body.compact
       %a.service{:href => "/raw/#{@page}"} Raw view
   %p(class='last_changed')
     = "Last change " + @page.last_changed
-#content.content
+.content{:id=>'content-' + @page.name}
   ~"#{@page.to_html}"
 :javascript
   document.getElementById("linkEdit").focus();
