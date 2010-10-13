@@ -1,6 +1,7 @@
 require "rubygems"
 require "sinatra/base"
 require "haml"
+require "sass"
 require "grit"
 require "rdiscount"
 
@@ -149,7 +150,7 @@ module GitWiki
     end
 
     def wrap_div(inner)
-      "<div class='todo'>#{inner}</div>"
+      "<div class='todo'>#{inner}</div>\n"
     end
 
     def to_html
