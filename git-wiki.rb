@@ -331,12 +331,25 @@ module GitWiki
 
     def to_html
       html = RDiscount.new(inject_todo(content)).to_html
-      html = inject_links(inject_header(html))
+      html = inject_links(inject_sections(inject_header(html)))
       html
     end
 
     def inject_header(orig)
       orig =~ /<h1>/ ? orig : "<h1>#{name}</h1>" + orig
+    end
+
+    def inject_sections(orig, level=1)
+      sections = orig.split("<h#{level}")
+      processed_sections = sections.each_with_index.map do |content, i|
+        if i == 0
+          content
+        else
+          content + '</div>'
+        end
+      end
+      header_id = 'hhh'
+      return processed_sections.join("<div class='section#{level}'><h#{level} id='#{header_id}'")
     end
 
     def inject_todo(orig)
