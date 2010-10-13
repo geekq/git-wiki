@@ -342,6 +342,7 @@ module GitWiki
     def inject_sections(orig, level=1)
       sections = orig.split("<h#{level}")
       processed_sections = sections.each_with_index.map do |content, i|
+        content = inject_sections(content, level+1) if level < 6
         if i == 0
           content
         else

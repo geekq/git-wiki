@@ -27,6 +27,11 @@ If your wiki page contains a markdown h1 header, then this one is used
 on the page. If not, then h1 is created out of the file name (as in
 original git-wiki).
 
+### Sections
+
+Content separated by headers like h1 is wrapped with divs, so you can
+style such blocks as you wish. Every header gets a unique id based on
+the header content.
 
 ### Style
 
