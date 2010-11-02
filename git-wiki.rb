@@ -330,6 +330,15 @@ module GitWiki
       res
     end
 
+    def last_change_hash
+      res = nil
+      Dir.chdir(GitWiki.repository.working_dir) do
+        file_path = GitWiki.subfolder ? File.join(GitWiki.subfolder, @blob.name) : @blob.name
+        res = `git log -1 --pretty=format:'%H' #{file_path}`
+      end
+      res
+    end
+
     def to_html
       html = RDiscount.new(inject_todo(content)).to_html
       html = inject_links(inject_sections(inject_header(html)))
@@ -446,13 +455,15 @@ module GitWiki
       end
     end
 
-    get "/refresh" do
-      Dir.chdir(GitWiki.repository.working_dir) do
-        haml :changes, :locals => {
-          :command_output => GitWiki.refresh!,
-          :last_changes => `git log -10 --pretty=format:'%h - %d %s (%cr) <%an>'`,
-          :return_to => params[:return_to]
-        }
+    get "/git/check" do
+      GitWiki.refresh!
+      @page = Page.find_or_create(params[:page])
+      puts @page.last_change_hash, params[:version]
+      if @page.last_change_hash == params[:version]
+        return "<div class='last_changed'>Last change " + @page.last_changed + "</div>"
+      else
+        return "<div class='warning'>The page you are currently viewing is obsolete.
+        Please reload the page.</div>"
       end
     end
 
@@ -483,16 +494,11 @@ module GitWiki
     end
 
     get "/:page/edit" do
-      GitWiki.refresh!
       @page = Page.find_or_create(params[:page])
       haml :edit
     end
 
     get "/:page" do
-      GitWiki.refresh!
-      Dir.chdir(GitWiki.repository.working_dir) do
-        GitWiki.add_message `git log -10 --pretty=format:'%h - %d %s (%cr) <%an>'`
-      end
       @page = Page.find(params[:page])
       haml :show
     end
@@ -606,6 +612,14 @@ a.service:hover
   margin-left: 10px
 #page_navigation
   float: right
+#git-status
+  display: none
+  float: left
+#git-status .warning
+  border: 2px solid red
+  color: red
+  padding: 2px
+  margin: 2px
 .last_changed
   margin: 0
   font-size: 80%
@@ -672,14 +686,17 @@ body.compact
     %link( rel="stylesheet" href="/git-wiki-default.css" type="text/css")
     - if GitWiki.tree/'project.css'
       %link( rel="stylesheet" href="/project.css" type="text/css")
+    %script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type='text/javascript')
   %body{:class => @global_style}
     %ul.navigation#main_navigation
       %li
         %a.service{ :href => "/#{GitWiki.homepage}" } Home
       %li
         %a.service{ :href => "/pages" } All pages
-      %li
-        %a.service{ :href => "/refresh?return_to=#{request.path_info}" } Refresh
+
+    #git-status
+      Hello
+
     = yield
     %ul( class="messages")
       -@messages.each do |m|
@@ -687,6 +704,13 @@ body.compact
           %pre
             %code
               &= m
+
+    :javascript
+      $(document).ready(function () {
+        $('#git-status').load('/git/check?page=#{@page}&version=#{@page.last_change_hash if @page}', function() {
+          $('#git-status').show(300);
+        });
+      })
 
 @@ show
 - title @page.name
@@ -698,8 +722,6 @@ body.compact
       %a.service{:href => "/compact/#{@page}"} Compact view
     %li
       %a.service{:href => "/raw/#{@page}"} Raw view
-  %p(class='last_changed')
-    = "Last change " + @page.last_changed
 .content{:id=>'content-' + @page.name}
   ~"#{@page.to_html}"
 :javascript
@@ -708,8 +730,6 @@ body.compact
 @@ edit
 - title "Editing #{@page.name}"
 %h1= title
-%p(class='last_changed')
-  = "Last change " + @page.last_changed
 %form{:method => 'POST', :action => "/#{@page}"}
   %p
     %textarea{:name => 'body', :id => 'topicContent', :rows => 30, :style => "width: 100%"}= @page.content
@@ -719,17 +739,6 @@ body.compact
     %a.cancel{:href=>"/#{@page}"} cancel
 :javascript
   document.getElementById("topicContent").focus();
-
-@@ changes
-- title "Last changes"
-%h2= "Just rebased:"
-%pre
-  %code&= command_output
-%h2= "Last changes:"
-%pre
-  %code&= last_changes
--if return_to
-  %a{:href => return_to}= "Back to the last page"
 
 @@ list
 - title "Listing pages"
