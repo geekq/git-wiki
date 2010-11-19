@@ -498,9 +498,13 @@ module GitWiki
       haml :edit
     end
 
-    get "/:page" do
+    def render_topic(topic_name)
       @page = Page.find(params[:page])
       haml :show
+    end
+
+    get "/:page" do
+      render_topic params[:page]
     end
 
     post "/:page" do
