@@ -129,7 +129,7 @@ module GitWiki
       t.orig_string = from_string + ' ' # add space to parse include statements without description
       return nil unless t.orig_string =~
         /^(?: \s*\*?\s*)                  # allow leading * with white space to both sides
-        ((?: DO|TODO|DONE|INCLUDE):?\s+)  # 1:TODO with optional colon
+        ((?: DO|TODO|DONE|CANCEL|INCLUDE):?\s+)  # 1:TODO with optional colon
         (#{TAGGED_VALUE_REGEX}+)?         # tagged values 2:, 3:, 4:
         (.*)                              # 5:title
         /x
@@ -159,7 +159,7 @@ module GitWiki
     end
 
     def done?
-      start =~ /DONE/
+      start =~ /DONE|CANCEL/
     end
 
     def include_statement?
