@@ -460,7 +460,7 @@ module GitWiki
       @page = Page.find_or_create(params[:page])
       puts @page.last_change_hash, params[:version]
       if @page.last_change_hash == params[:version]
-        return "<div class='last_changed'>Last change " + @page.last_changed + "</div>"
+        return "<div class='last_changed service'>Last change " + @page.last_changed + "</div>"
       else
         return "<div class='warning'>The page you are currently viewing is obsolete.
         Please reload the page.</div>"
