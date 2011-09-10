@@ -674,6 +674,8 @@ div.included
     text-align: right
 div.todo p
   display: inline
+div.todo a
+  border-color: #C0C
 
 body.vimlike
   margin-left: 2em
