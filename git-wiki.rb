@@ -301,7 +301,7 @@ module GitWiki
       return [] if GitWiki.tree.contents.empty?
       GitWiki.tree.contents.
         select {|blob| File.extname(blob.name) == GitWiki.extension }.
-        select {|blob| blob.name.index(name) }.
+        select {|blob| blob.name.downcase.index(name.downcase) }.
         collect {|blob| new(blob)}.
         sort_by {|page| page.name.downcase}
     end
