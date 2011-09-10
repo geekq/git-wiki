@@ -616,12 +616,22 @@ table
     border-bottom: 1px solid black
     text-align: left
     padding: 3px 4px
+a
+  text-decoration: none
+  color: inherit
+  border-bottom: 1px dotted #8c8c8c
+a:visited
+  color: inherit
+a:hover
+  border-bottom: 1px solid #8c8c8c
 a.service
   color: #4377EF
-  text-decoration: none
+  border-bottom: none
   font-weight: bold
 a.service:hover
   border-bottom: 2px dotted #4377EF
+a.page_name
+  border-bottom: 1px dashed #8c8c8c
 #main_navigation, #page_navigation
   float: left
   font-family: sans-serif
