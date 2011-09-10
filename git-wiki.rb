@@ -748,7 +748,7 @@ body.compact
 
 @@ select_or_create_topic
 - title @name_or_part
-%br
+%br{:style => "clear: both"}
 .content
   %ul
     - @topics.each do |topic|
