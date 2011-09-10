@@ -569,6 +569,7 @@ body
   margin-left: 10px
   margin-bottom: 10px
   float: left
+  clear: both
 del
   color: gray
 code
@@ -585,9 +586,10 @@ pre
     display: block
     padding: 0.615em 0.46em
     margin-bottom: 1.692em
-ul.navigation
+ul.main_navigation, ul.page_navigation
   list-style-type: none
-  display: inline
+  display: block
+  float: left
   margin: 0
   padding: 0
   li
@@ -595,6 +597,7 @@ ul.navigation
     margin: 0
     padding: 0
     padding-right: 1.5em
+    white-space: nowrap
 ul.messages
   border: 1px dashed red
   list-style: none
@@ -632,14 +635,16 @@ a.service:hover
   border-bottom: 2px dotted #4377EF
 a.page_name
   border-bottom: 1px dashed #8c8c8c
-#main_navigation, #page_navigation
+.desktop.main_navigation, .desktop.page_navigation
   float: left
   font-family: sans-serif
   margin-top: 0
   margin-bottom: 8px
   margin-left: 10px
-#page_navigation
+.desktop.page_navigation
   float: right
+.compact.main_navigation, .compact.page_navigation
+  display: none
 #git-status
   display: none
   float: left
@@ -697,8 +702,11 @@ body.vimlike
 body.compact
   margin-left: inherit
   font-family: Helvetica, sans-serif
-  .navigation
+  .desktop.main_navigation, .desktop.page_navigation
     display: none
+  .compact.main_navigation, .compact.page_navigation
+    display: block
+    margin-top: 5px
   .content
     border: none
     margin: 0
@@ -718,7 +726,7 @@ body.compact
       %link( rel="stylesheet" href="/project.css" type="text/css")
     %script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type='text/javascript')
   %body{:class => @global_style}
-    %ul.navigation#main_navigation
+    %ul.desktop.main_navigation
       %li
         %a.service{ :href => "/#{GitWiki.homepage}" } Home
       %li
@@ -734,23 +742,40 @@ body.compact
           %pre
             %code
               &= m
+    %ul.compact.main_navigation
+      %li
+        %a.service{ :href => "/#{GitWiki.homepage}" } Home
+      %li
+        %a.service{ :href => "/pages" } All pages
+:javascript
+  function toggleCompactView() {
+    $('body').toggleClass('compact')
+  }
+  var uagent = navigator.userAgent.toLowerCase();
+  if (uagent.search('mobile') > -1) {
+    toggleCompactView()
+  }
 
 @@ show
 - title @page.name
-#page_navigation.page_navigation
-  %ul.navigation#edit
-    %li
-      %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit this page
-    %li
-      %a.service{:href => "/compact/#{@page}"} Compact view
-    %li
-      %a.service{:href => "/raw/#{@page}"} Raw view
+%ul.desktop.page_navigation
+  %li
+    %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit
+  %li
+    %a.service{:href => "javascript:toggleCompactView()"} Compact view
+  %li
+    %a.service{:href => "/raw/#{@page}"} Raw view
 .content{:id=>'content-' + @page.name}
   ~"#{@page.to_html}"
+%ul.compact.page_navigation
+  %li
+    %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit
+  %li
+    %a.service{:href => "javascript:toggleCompactView()"} Compact view
+  %li
+    %a.service{:href => "/raw/#{@page}"} Raw view
 :javascript
-  // $("li:has(a)").css("margin-top", "1cm").css("margin-bottom", "1cm")
   document.getElementById("linkEdit").focus();
-
 :javascript
   $(document).ready(function () {
     $('#git-status').load('/git/check?page=#{@page}&version=#{@page.last_change_hash if @page}', function() {
