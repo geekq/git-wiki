@@ -353,7 +353,7 @@ module GitWiki
     end
 
     def to_html
-      html = RDiscount.new(inject_todo(content)).to_html
+      html = RDiscount.new(inject_todo(inject_subtopics(content))).to_html
       html = inject_links(inject_sections(inject_header(html)))
       html
     end
@@ -385,6 +385,18 @@ module GitWiki
         end
       end
       return processed_sections.join
+    end
+
+    def inject_subtopics(orig)
+      res = []
+      orig.each_line do |line|
+        if line =~ /^INCLUDE_HEAD\s(.+)$/
+          res << "<iframe class='subtopic' src='#{$1}'></iframe>"
+        else
+          res << line
+        end
+      end
+      res.join
     end
 
     def inject_todo(orig)
@@ -570,7 +582,20 @@ html, body
   clear: both
 .barecontent
   background-color: white
-  padding: 5px
+  padding: 0px 0 0 0
+  h1
+    font-size: 15px
+    font-family: FreeSans, sans-serif
+    background-color: #AAA
+    padding-left: 3px
+    color: white
+    margin-top: 0
+iframe.subtopic
+  border: none
+  border-top: 1px solid grey
+  border-bottom: 1px solid grey
+  width: 100%
+  height: 20px
 del
   color: gray
 code
@@ -754,14 +779,14 @@ body.compact
         %a.service{ :href => "/#{GitWiki.homepage}" } Home
       %li
         %a.service{ :href => "/pages" } All pages
-:javascript
-  function toggleCompactView() {
-    $('body').toggleClass('compact')
-  }
-  var uagent = navigator.userAgent.toLowerCase();
-  if (uagent.search('mobile') > -1) {
-    toggleCompactView()
-  }
+    :javascript
+      function toggleCompactView() {
+        $('body').toggleClass('compact')
+      }
+      var uagent = navigator.userAgent.toLowerCase();
+      if (uagent.search('mobile') > -1) {
+        toggleCompactView()
+      }
 
 @@ minimal_layout
 !!!
@@ -796,10 +821,23 @@ body.compact
 :javascript
   document.getElementById("linkEdit").focus();
 :javascript
+  function autoResizeIFrame() {
+    $('iframe').height(
+      function() {
+        return $(this).contents().find('body').height() + 20;
+      }
+    )
+  }
+
   $(document).ready(function () {
     $('#git-status').load('/git/check?page=#{@page}&version=#{@page.last_change_hash if @page}', function() {
       $('#git-status').show(300);
-    });
+    })
+
+    $('iframe').contents().find('body').css({"min-height": "20px", "height": "20px", "overflow" : "hidden"});
+
+    setTimeout(autoResizeIFrame, 2000);
+    setTimeout(autoResizeIFrame, 10000);
   })
 
 @@ bare
