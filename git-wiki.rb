@@ -533,12 +533,6 @@ module GitWiki
       end
     end
 
-    get "/compact/:page" do # especially suitable for iPhone
-      @page = Page.find(params[:page])
-      @global_style = 'compact'
-      haml :show
-    end
-
     get "/raw/:page" do
       @page = Page.find(params[:page])
       content_type 'text'
@@ -730,7 +724,7 @@ body.compact
     - if GitWiki.tree/'project.css'
       %link( rel="stylesheet" href="/project.css" type="text/css")
     %script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type='text/javascript')
-  %body{:class => @global_style}
+  %body
     %ul.desktop.main_navigation
       %li
         %a.service{ :href => "/#{GitWiki.homepage}" } Home
