@@ -327,8 +327,11 @@ module GitWiki
       GitWiki.extension || raise
     end
 
+    attr_accessor :content
+
     def initialize(blob)
       @blob = blob
+      @content = blob.data
     end
 
     def last_changed
@@ -415,10 +418,6 @@ module GitWiki
 
     def name
       @blob.name.gsub(/#{File.extname(@blob.name)}$/, '')
-    end
-
-    def content
-      @blob.data
     end
 
     def rel_file_name
@@ -513,13 +512,14 @@ module GitWiki
       haml :edit
     end
 
-    def render_topic(topic_name)
-      @page = Page.find(params[:page])
-      haml :show
-    end
-
     get "/:page" do
-      render_topic params[:page]
+      @page = Page.find(params[:page])
+      if params['head'] == 'head'
+        @page.content = @page.content.sub(/\n- - -.*/m, '')
+        haml :bare, :layout => :minimal_layout
+      else
+        haml :show
+      end
     end
 
     post "/:page" do
@@ -553,8 +553,11 @@ end
 
 __END__
 @@ git_wiki_default
-body
+html, body
   background-color: #DDD
+  margin: 0
+  padding: 0
+  top: 0
 .content
   max-width: 40em
   width: 80%
@@ -565,6 +568,9 @@ body
   margin-bottom: 10px
   float: left
   clear: both
+.barecontent
+  background-color: white
+  padding: 5px
 del
   color: gray
 code
@@ -670,6 +676,8 @@ div.todo p
   display: inline
 div.todo a
   border-color: #C0C
+div.todo del a
+  border-color: grey
 
 body.vimlike
   margin-left: 2em
@@ -755,6 +763,18 @@ body.compact
     toggleCompactView()
   }
 
+@@ minimal_layout
+!!!
+%html
+  %head
+    %title= title
+    %meta{ :name => "viewport", :content => "width = device-width, user-scalable = yes" }
+    %link( rel="stylesheet" href="/git-wiki-default.css" type="text/css")
+    - if GitWiki.tree/'project.css'
+      %link( rel="stylesheet" href="/project.css" type="text/css")
+  %body
+    = yield
+
 @@ show
 - title @page.name
 %ul.desktop.page_navigation
@@ -782,6 +802,9 @@ body.compact
     });
   })
 
+@@ bare
+.barecontent{:id=>'content-' + @page.name}
+  ~"#{@page.to_html}"
 
 @@ select_or_create_topic
 - title @name_or_part
