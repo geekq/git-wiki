@@ -704,6 +704,8 @@ body.compact
     margin: 0
     max-width: inherit
     width: 100%
+  a
+    line-height: 250%
 
 @@ layout
 !!!
@@ -746,6 +748,7 @@ body.compact
 .content{:id=>'content-' + @page.name}
   ~"#{@page.to_html}"
 :javascript
+  // $("li:has(a)").css("margin-top", "1cm").css("margin-bottom", "1cm")
   document.getElementById("linkEdit").focus();
 
 :javascript
