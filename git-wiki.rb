@@ -297,6 +297,15 @@ module GitWiki
       new(page_blob)
     end
 
+    def self.search(name)
+      return [] if GitWiki.tree.contents.empty?
+      GitWiki.tree.contents.
+        select {|blob| File.extname(blob.name) == GitWiki.extension }.
+        select {|blob| blob.name.index(name) }.
+        collect {|blob| new(blob)}.
+        sort_by {|page| page.name.downcase}
+    end
+
     def self.find_or_create(name)
       find(name)
     rescue PageNotFound
@@ -428,8 +437,13 @@ module GitWiki
     enable :inline_templates
 
     error PageNotFound do
-      page = request.env["sinatra.error"].name
-      redirect "/#{page}/edit"
+      @name_or_part = request.env["sinatra.error"].name
+
+      # search for the part of the topic name (case insensitive)
+      @topics = Page.search(@name_or_part)
+
+      # render list of suitable topics + 'create new topic'
+      haml :select_or_create_topic
     end
 
     before do
@@ -709,13 +723,6 @@ body.compact
             %code
               &= m
 
-    :javascript
-      $(document).ready(function () {
-        $('#git-status').load('/git/check?page=#{@page}&version=#{@page.last_change_hash if @page}', function() {
-          $('#git-status').show(300);
-        });
-      })
-
 @@ show
 - title @page.name
 #page_navigation.page_navigation
@@ -730,6 +737,27 @@ body.compact
   ~"#{@page.to_html}"
 :javascript
   document.getElementById("linkEdit").focus();
+
+:javascript
+  $(document).ready(function () {
+    $('#git-status').load('/git/check?page=#{@page}&version=#{@page.last_change_hash if @page}', function() {
+      $('#git-status').show(300);
+    });
+  })
+
+
+@@ select_or_create_topic
+- title @name_or_part
+%br
+.content
+  %ul
+    - @topics.each do |topic|
+      %li
+        %a{:href => "/#{topic}"}
+          = topic
+  #create-topic
+    %a{:href => "/#{@name_or_part}/edit"}
+      = "Create topic '#{@name_or_part}'"
 
 @@ edit
 - title "Editing #{@page.name}"
