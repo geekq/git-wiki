@@ -145,7 +145,8 @@ module GitWiki
 
     def inner_html
       attr_str = attributes.map{|key, value| "#{key}:#{value} "}.join
-      html = "<span style='font-weight:bold'>#{start}</span>#{attr_str}#{CGI.escapeHTML(desc)}"
+      desc_in_html = RDiscount.new(desc).to_html
+      html = "<span style='font-weight:bold'>#{start}</span>#{attr_str}#{desc_in_html}"
       html = "<del>#{html}</del>" if done?
       html
     end
@@ -671,6 +672,8 @@ div.included
     text-decoration: none !important
     color: grey
     text-align: right
+div.todo p
+  display: inline
 
 body.vimlike
   margin-left: 2em
