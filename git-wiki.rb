@@ -524,7 +524,7 @@ module GitWiki
       haml :edit
     end
 
-    get "/:page" do
+    def render_topic(params) # can be overridden, e.g. in the special git-wiki-crm solution
       @page = Page.find(params[:page])
       if params['head'] == 'head'
         @page.content = @page.content.sub(/\n- - -.*/m, '')
@@ -532,6 +532,10 @@ module GitWiki
       else
         haml :show
       end
+    end
+
+    get "/:page" do
+      render_topic params
     end
 
     post "/:page" do
