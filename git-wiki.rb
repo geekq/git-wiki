@@ -448,16 +448,6 @@ module GitWiki
                  :attr_wrapper  => '"'     }
     enable :inline_templates
 
-    error PageNotFound do
-      @name_or_part = request.env["sinatra.error"].name
-
-      # search for the part of the topic name (case insensitive)
-      @topics = Page.search(@name_or_part)
-
-      # render list of suitable topics + 'create new topic'
-      haml :select_or_create_topic
-    end
-
     before do
       content_type "text/html", :charset => "utf-8"
       @messages = GitWiki.messages
@@ -535,7 +525,17 @@ module GitWiki
     end
 
     get "/:page" do
-      render_topic params
+      begin
+        render_topic params
+      rescue GitWiki::PageNotFound
+        name_or_part = params[:page]
+
+        # search for the part of the topic name (case insensitive)
+        @topics = Page.search(name_or_part)
+
+        # render list of suitable topics + 'create new topic'
+        haml :select_or_create_topic
+      end
     end
 
     post "/:page" do
