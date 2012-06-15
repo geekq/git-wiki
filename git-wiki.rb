@@ -574,6 +574,7 @@ html, body
   margin: 0
   padding: 0
   top: 0
+  height: 98%
 .content
   max-width: 40em
   width: 80%
@@ -583,7 +584,6 @@ html, body
   margin-left: 10px
   margin-bottom: 10px
   float: left
-  clear: both
 .barecontent
   background-color: white
   padding: 0px 0 0 0
@@ -600,6 +600,12 @@ iframe.subtopic
   border-bottom: 1px solid grey
   width: 100%
   height: 20px
+form
+  height: 92%
+#topicContent
+  height: 87%
+  width: 97%
+  margin: 0 1em
 del
   color: gray
 code
@@ -672,6 +678,7 @@ a.page_name
   margin-bottom: 8px
   margin-left: 10px
 .desktop.page_navigation
+  margin-top: 2.4em
   float: right
 .compact.main_navigation, .compact.page_navigation
   display: none
@@ -865,8 +872,7 @@ body.compact
 - title "Editing #{@page.name}"
 %h1= title
 %form{:method => 'POST', :action => "/#{@page}"}
-  %p
-    %textarea{:name => 'body', :id => 'topicContent', :rows => 30, :style => "width: 100%"}= @page.content
+  %textarea{:name => 'body', :id => 'topicContent'}= @page.content
   %p
     %input.submit{:type => :submit, :value => "Save as the newest version"}
     or
