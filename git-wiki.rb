@@ -6,6 +6,12 @@ require "grit"
 require "rdiscount"
 require "cgi"
 
+def project_specific_css
+  if (git_obj = GitWiki.tree/'project.css')
+    git_obj.data
+  end
+end
+
 module GitWiki
   class << self
     attr_accessor :homepage, :extension, :repository_folder, :subfolder
@@ -764,9 +770,11 @@ body.compact
   %head
     %title= title
     %meta{ :name => "viewport", :content => "width = device-width, user-scalable = yes" }
-    %link( rel="stylesheet" href="/git-wiki-default.css" type="text/css")
+    %style
+      = sass :git_wiki_default
     - if GitWiki.tree/'project.css'
-      %link( rel="stylesheet" href="/project.css" type="text/css")
+      %style
+        = project_specific_css
     %script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type='text/javascript')
   %body
     %ul.desktop.main_navigation
