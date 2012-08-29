@@ -135,11 +135,11 @@ module GitWiki
       t.orig_string = from_string + ' ' # add space to parse include statements without description
       return nil unless t.orig_string =~
         /^(?: \s*\*?\s*)                  # allow leading * with white space to both sides
-        ((?: DO|TODO|DONE|CANDO|CANCEL|INCLUDE):?\s+)  # 1:TODO with optional colon
+        ((?: DO|[Tt][Oo][Dd][Oo]|DONE|CANDO|CANCEL|INCLUDE):?\s+)  # 1:TODO with optional colon
         (#{TAGGED_VALUE_REGEX}+)?         # tagged values 2:, 3:, 4:
         (.*)                              # 5:title
         /x
-      t.start = $1
+      t.start = $1.upcase
       t.orig_attributes_str = $2
       t.desc = $+.strip
 
