@@ -859,8 +859,6 @@ body.compact
     %textarea{:name => 'prependText', :id => 'prependContent'}= params[:prepend]
     %p
       %input.submit{:type => :submit, :value => "Prepend"}
-.content{:id=>'content-' + @page.name}
-  ~"#{@page.to_html}"
 %ul.compact.page_navigation
   %li
     %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit
@@ -870,6 +868,8 @@ body.compact
     %a.service{:href => "javascript:toggleCompactView()"} Normal view
   %li
     %a.service{:href => "/raw/#{@page}"} Raw view
+.content{:id=>'content-' + @page.name}
+  ~"#{@page.to_html}"
 :javascript
   document.getElementById("linkEdit").focus();
 :javascript
