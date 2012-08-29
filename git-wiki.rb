@@ -555,6 +555,13 @@ module GitWiki
       end
     end
 
+    post "/:page/prepend" do
+      GitWiki.refresh!
+      @page = Page.find_or_create(params[:page])
+      GitWiki.update_content(@page, params[:prependText] + "\n" + @page.content )
+      redirect "/#{@page}"
+    end
+
     get "/raw/:page" do
       @page = Page.find(params[:page])
       content_type 'text'
@@ -608,9 +615,16 @@ iframe.subtopic
   height: 20px
 form
   height: 92%
+#prependContentForm
+  display: none
+  float: left
+  width: 95%
+  textarea
+    width: 90%
+    margin: 0 1em
 #topicContent
   height: 87%
-  width: 97%
+  width: 90%
   margin: 0 1em
 del
   color: gray
@@ -800,8 +814,18 @@ body.compact
         %a.service{ :href => "/pages" } All pages
     :javascript
       function toggleCompactView() {
-        $('body').toggleClass('compact')
+        $('body').toggleClass('compact');
       }
+
+      function prependContent() {
+        $('#prependContentForm').toggle();
+        $('#prependContent').focus();
+      }
+
+      if (#{!!params[:prepend]}) {
+        prependContent();
+      }
+
       var uagent = navigator.userAgent.toLowerCase();
       if (uagent.search('mobile') > -1) {
         toggleCompactView()
@@ -825,16 +849,25 @@ body.compact
   %li
     %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit
   %li
+    %a.service{:href => "javascript:prependContent()"} Prepend
+  %li
     %a.service{:href => "javascript:toggleCompactView()"} Compact view
   %li
     %a.service{:href => "/raw/#{@page}"} Raw view
+%div
+  %form{:method => 'POST', :action => "/#{@page}/prepend", :id => 'prependContentForm'}
+    %textarea{:name => 'prependText', :id => 'prependContent'}= params[:prepend]
+    %p
+      %input.submit{:type => :submit, :value => "Prepend"}
 .content{:id=>'content-' + @page.name}
   ~"#{@page.to_html}"
 %ul.compact.page_navigation
   %li
     %a.service{:href => "/#{@page}/edit", :id => 'linkEdit'} Edit
   %li
-    %a.service{:href => "javascript:toggleCompactView()"} Compact view
+    %a.service{:href => "javascript:prependContent()"} Prepend
+  %li
+    %a.service{:href => "javascript:toggleCompactView()"} Normal view
   %li
     %a.service{:href => "/raw/#{@page}"} Raw view
 :javascript
@@ -877,6 +910,18 @@ body.compact
       = "Create topic '#{@name_or_part}'"
 
 @@ edit
+- title "Editing #{@page.name}"
+%h1= title
+%form{:method => 'POST', :action => "/#{@page}"}
+  %textarea{:name => 'body', :id => 'topicContent'}= @page.content
+  %p
+    %input.submit{:type => :submit, :value => "Save as the newest version"}
+    or
+    %a.cancel{:href=>"/#{@page}"} cancel
+:javascript
+  document.getElementById("topicContent").focus();
+
+@@ prepend
 - title "Editing #{@page.name}"
 %h1= title
 %form{:method => 'POST', :action => "/#{@page}"}
