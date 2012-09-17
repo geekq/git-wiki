@@ -55,38 +55,9 @@ module GitWiki
     end
   end
 
-  # @return Output of the rebase command
-  def self.refresh!
-    res = ""
-    Dir.chdir(GitWiki.repository.working_dir) do
-      if upstream_configured?
-        res =  "$ git pull --rebase\n"
-        res += `date --rfc-3339=seconds;git pull --rebase;date --rfc-3339=seconds`
-        self.upstream_server_online = ($? == 0)
-      else
-        self.upstream_server_online = false
-      end
-    end
-    add_message res
-    res
-  end
-
   def self.commit(commit_message)
     Dir.chdir(GitWiki.repository.working_dir) do
       repository.commit_index(commit_message)
-
-      if self.upstream_server_online
-        Dir.chdir(GitWiki.repository.working_dir) do
-          res = `git push`
-          if $?.exitstatus != 0
-            add_message "git push failed!\n#{res}"
-          else
-            add_message "git push successful!\n#{res}"
-          end
-        end
-      else
-        add_message "Upstream server unavailable! Saving only locally."
-      end
     end
   end
 
@@ -478,7 +449,6 @@ module GitWiki
     end
 
     get "/git/check" do
-      GitWiki.refresh!
       @page = Page.find_or_create(params[:page])
       puts @page.last_change_hash, params[:version]
       if @page.last_change_hash == params[:version]
@@ -545,7 +515,6 @@ module GitWiki
     end
 
     post "/:page" do
-      GitWiki.refresh!
       @page = Page.find_or_create(params[:page])
       if GitWiki.delete_if_empty(@page, params[:body])
         redirect "/pages"
@@ -556,7 +525,6 @@ module GitWiki
     end
 
     post "/:page/prepend" do
-      GitWiki.refresh!
       @page = Page.find_or_create(params[:page])
       GitWiki.update_content(@page, params[:prependText] + "\n" + @page.content )
       redirect "/#{@page}"
