@@ -534,10 +534,10 @@ module GitWiki
       begin
         render_topic params
       rescue GitWiki::PageNotFound
-        name_or_part = params[:page]
+        @name_or_part = params[:page]
 
         # search for the part of the topic name (case insensitive)
-        @topics = Page.search(name_or_part)
+        @topics = Page.search(@name_or_part)
 
         # render list of suitable topics + 'create new topic'
         haml :select_or_create_topic
