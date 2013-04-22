@@ -46,7 +46,9 @@ module GitWiki
   end
 
   def self.repository
-    @repo ||= Grit::Repo.new(self.repository_folder)
+    # TODO try to use bare repository
+    # @repo ||= Grit::Repo.new(self.repository_folder, :is_bare => true)
+    @repo ||= Grit::Repo.new(self.repository_folder, :is_bare => false)
   end
 
   def self.upstream_configured?
